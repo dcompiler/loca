@@ -3,4 +3,4 @@ loca
 
 Program locality analysis tools
 
-License: 
+License: Free for open source projects (GPL v.2.0).
