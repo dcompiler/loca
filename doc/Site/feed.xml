@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+ <id>urn:iweb:E6FE4C0A-45BB-499B-A3DC-D70B803830BC</id>
+ <title>Page list Atom feed</title>
+ <updated>2012-05-29T23:30:40-04:00</updated>
+ <link rel="self" href="feed.xml"/>
+ <generator>iWeb</generator>
+ <author>
+  <name>iWeb</name>
+ </author>
+ <entry>
+  <id>urn:iweb:86BAC02A-1970-45B0-8C32-2C5183B21D3C</id>
+  <title>installation</title>
+  <title xmlns="urn:iweb:">installation</title>
+  <in-navbar xmlns="urn:iweb:">86BAC02A-1970-45B0-8C32-2C5183B21D3C</in-navbar>
+  <link rel="alternate" href="installation.html"/>
+  <updated>2012-05-29T23:30:40.001-04:00</updated>
+  <content>installation</content>
+ </entry>
+ <entry>
+  <id>urn:iweb:630E69DD-C002-421F-BF82-F66C5F07B311</id>
+  <title>external software</title>
+  <title xmlns="urn:iweb:">external software</title>
+  <in-navbar xmlns="urn:iweb:">630E69DD-C002-421F-BF82-F66C5F07B311</in-navbar>
+  <link rel="alternate" href="external_software.html"/>
+  <updated>2012-05-29T23:30:40.002-04:00</updated>
+  <content>external software</content>
+ </entry>
+</feed>
