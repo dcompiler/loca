@@ -1,6 +1,9 @@
-# Using thin webserver
-# gem install thin --user-install
-# to run: thin start -R server.ru --threaded
+#!/usr/bin/ruby
+
+require_relative 'server'
+require_relative 'plot'
+require 'fileutils'
+require 'rack'
 
 $Debug = true
 $DryRun = false
@@ -33,9 +36,7 @@ puts "LocaServer: serving from #{HomeDir}"
 FileUtils.cp_r("#{LocaServerDir}/static/.", \
 								 "#{HomeDir}/.static/")
 
-require 'server'
-require 'plot'
-require 'fileutils'
+
 
 module Util
   def self.run_cmd cmd
@@ -152,9 +153,9 @@ class UpServer
       name = request.params["upload"][:filename]
       puts name
       if (name =~ /.dat$/ or name =~ /.info$/) #check file type
-        res = File.new("#{HomeDir}/data/#{name}","wb")
+        res = File.open("#{HomeDir}/data/#{name}","wb")
         res.puts request.params["upload"][:tempfile].readlines
-        res.close
+        #res.close
       end
     end
     contents = ''
@@ -176,4 +177,4 @@ app = Rack::Builder.new do
   map('/upload') {run up}
 end
 
-run app
+Rack::Handler::WEBrick.run(app, :Port => 3000)
