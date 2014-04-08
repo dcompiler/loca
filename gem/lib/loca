@@ -26,6 +26,7 @@ end
 
 if ARGV.size >= 1
   cmd = ARGV.shift
+    runpara = ARGV.shift if cmd == "run"
   args = ARGV
 else
   cmd_help
@@ -49,7 +50,15 @@ begin
       data_dir = Labenv.paths[Labenv::DataDir]
       basename = Machine.get_output_file_name( args[0] )
       basename = File.join( data_dir, basename )
-      syscmd = "#{Labenv.env[cmd]} -o #{basename}.dat -- #{args * ' '}"
+      if runpara == "-d"
+        syscmd = "#{Labenv.env[cmd]} -o #{basename}.dat -m 1 -- #{args * ' '}"
+      elsif runpara == "-i"
+        syscmd = "#{Labenv.env[cmd]} -o #{basename}.dat -m 2 -- #{args * ' '}"
+      elsif runpara == "-a"
+        syscmd = "#{Labenv.env[cmd]} -o #{basename}.dat -m 3 -- #{args * ' '}"
+      else
+        syscmd = "#{Labenv.env[cmd]} -o #{basename}.dat -m 1 -- #{runpara} #{args * ' '}"
+      end
       t1 = Time.now
       run_cmd syscmd
       info = Machine.get_machine_env

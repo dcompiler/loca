@@ -154,7 +154,7 @@ VOID Fini(INT32 code, VOID *v){
   stamp_t i, idx, k;
   stamp_tt ws, tmp;
   
-  char fname[50];
+  char fname[128]; //[50]; //need to support long filename
   char mode = 'd';
   if(profile_inst){
     if(profile_data) mode = 'a';
