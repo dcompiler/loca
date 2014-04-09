@@ -21,11 +21,19 @@ end
 def cmd_help
   puts "LocalityLab v0.1"
   puts "#{$0.split('/')[-1]} commands:"
-  puts "  config run upload help"
+  puts "config\tconfiguration"
+  puts "run\trun loca analyze on specific program"
+  puts "  -d\trun data analysis(default)"
+  puts "  -d\trun instruction analysis"
+  puts "  -a\trun all analysis"
+  puts "upload\tupload current data to server"
+  puts "clean\t[todo]clean current data dir"
+  puts "help"
 end
 
 if ARGV.size >= 1
   cmd = ARGV.shift
+    runpara = ARGV.shift if cmd == "run"
   args = ARGV
 else
   cmd_help
@@ -49,7 +57,15 @@ begin
       data_dir = Labenv.paths[Labenv::DataDir]
       basename = Machine.get_output_file_name( args[0] )
       basename = File.join( data_dir, basename )
-      syscmd = "#{Labenv.env[cmd]} -o #{basename}.dat -- #{args * ' '}"
+      if runpara == "-d"
+        syscmd = "#{Labenv.env[cmd]} -o #{basename}.dat -m 1 -- #{args * ' '}"
+      elsif runpara == "-i"
+        syscmd = "#{Labenv.env[cmd]} -o #{basename}.dat -m 2 -- #{args * ' '}"
+      elsif runpara == "-a"
+        syscmd = "#{Labenv.env[cmd]} -o #{basename}.dat -m 3 -- #{args * ' '}"
+      else
+        syscmd = "#{Labenv.env[cmd]} -o #{basename}.dat -m 1 -- #{runpara} #{args * ' '}"
+      end
       t1 = Time.now
       run_cmd syscmd
       info = Machine.get_machine_env
@@ -75,6 +91,9 @@ begin
           end
         end
       }
+    elsif cmd == "clean"
+      #todo
+      puts "[todo] comming soon, please manually empty the data dir"
     else
       puts "#{cmd} not a valid command (see '#{$0.split('/')[-1]} help')"
     end
