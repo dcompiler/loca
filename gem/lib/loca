@@ -21,7 +21,14 @@ end
 def cmd_help
   puts "LocalityLab v0.1"
   puts "#{$0.split('/')[-1]} commands:"
-  puts "  config run upload help"
+  puts "config\tconfiguration"
+  puts "run\trun loca analyze on specific program"
+  puts "  -d\trun data analysis(default)"
+  puts "  -d\trun instruction analysis"
+  puts "  -a\trun all analysis"
+  puts "upload\tupload current data to server"
+  puts "clean\t[todo]clean current data dir"
+  puts "help"
 end
 
 if ARGV.size >= 1
@@ -84,6 +91,9 @@ begin
           end
         end
       }
+    elsif cmd == "clean"
+      #todo
+      puts "[todo] comming soon, please manually empty the data dir"
     else
       puts "#{cmd} not a valid command (see '#{$0.split('/')[-1]} help')"
     end
