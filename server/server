@@ -35,7 +35,8 @@ puts "LocaServer: serving from #{HomeDir}"
 
 FileUtils.cp_r("#{LocaServerDir}/static/.", \
 								 "#{HomeDir}/.static/")
-
+FileUtils.cp_r("#{LocaServerDir}/favicon.ico", \
+								 "#{HomeDir}/")
 
 
 module Util
@@ -81,7 +82,7 @@ class CServer
           'Content-Length' => contents.bytesize.to_s,
       }
       ## Create contents of the plotting page.
-    elsif ext == ".dat" or ext == ".fp"
+    elsif ext =~ /[a|i|d|dat]$/ or ext == ".fp"
       program = File.basename(req, ext) # strips .dat or .fp from req.
       ## Create HTML files to display dynamic picture.
       ["fp", "lf", "mr", "rd"].each do |metric|
@@ -159,7 +160,7 @@ class UpServer
       end
     end
     contents = ''
-    if name =~ /.dat$/
+    if name =~ /.dat([.][a|i|d])?$/
       contents = "http://localhost:3000/data/#{name}"
     end
     headers = {

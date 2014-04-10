@@ -10,11 +10,11 @@ require 'fileutils' #instead of 'ftools'
 		if zoom == true
 			arg1 = File.join(currentDir, "zoom_#{program}")
 			arg2 = ext
-			`Rscript #{LocaServerDir}/draw.r #{arg1} #{arg2}`
+			`Rscript #{LocaServerDir}/draw_dual.r #{arg1} #{arg2}`
 		else
 			arg1 = File.join(currentDir, program)
 			arg2 = ext
-			`Rscript #{LocaServerDir}/draw.r #{arg1} #{arg2}`
+			`Rscript #{LocaServerDir}/draw_dual.r #{arg1} #{arg2}`
 		end
 	 end
 

@@ -33,7 +33,7 @@ end
 
 if ARGV.size >= 1
   cmd = ARGV.shift
-    runpara = ARGV.shift if cmd == "run"
+  runpara = ARGV.shift if cmd == "run"
   args = ARGV
 else
   cmd_help
@@ -50,13 +50,13 @@ begin
   else
     if Labenv.env == nil
       warn "Please run '#{$0.split('/')[-1]} config' first"
-      exit( 1 )
+      exit(1)
     end
 
     if cmd == "run"
       data_dir = Labenv.paths[Labenv::DataDir]
-      basename = Machine.get_output_file_name( args[0] )
-      basename = File.join( data_dir, basename )
+      basename = Machine.get_output_file_name(args[0])
+      basename = File.join(data_dir, basename)
       if runpara == "-d"
         syscmd = "#{Labenv.env[cmd]} -o #{basename}.dat -m 1 -- #{args * ' '}"
       elsif runpara == "-i"
@@ -72,18 +72,20 @@ begin
       info[:time] = Time.now - t1
       info[:status] = $?
       info[:command] = syscmd
-      File.open( "#{basename}.info", 'w', 0644) do |f|
+      File.open("#{basename}.info", 'w', 0644) do |f|
         f.puts info.to_yaml
       end
 
     elsif cmd == "upload"
       data_dir = Labenv.paths[Labenv::DataDir]
       Dir.foreach(data_dir) { |file|
-        if file !~ /^\. */
-          basename = File.join( data_dir, file )
+        isDir = File.directory?(file)
+        next if File.directory?(file)
+        if file =~ /.dat([.][a|i|d])?$/ or file =~ /.info$/ #check file type
+          basename = File.join(data_dir, file)
           f = File.new(basename, "rb")
           reply = RestClient.post('http://localhost:3000/upload',
-                                  :upload =>  f
+                                  :upload => f
           )
           if reply != ''
             puts reply

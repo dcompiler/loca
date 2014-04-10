@@ -10,6 +10,9 @@ module Server
 			fullname = File.join(currentDir, item)
 			# Only show unhidden".dat" ".fp", and ".info" files and directories.
 			if File.extname(item) == ".dat" \
+			or File.extname(item) == ".dat.a" \
+			or File.extname(item) == ".dat.i" \
+			or File.extname(item) == ".dat.d" \
 			or File.extname(item) == ".fp" \
 			or File.extname(item) == ".gif" \
 			or File.extname(item) == ".info" \
