@@ -81,7 +81,7 @@ begin
       data_dir = Labenv.paths[Labenv::DataDir]
       basename = Machine.get_output_file_name(args[0])
       basename = File.join(data_dir, basename)
-      syscmd = "#{Labenv.env[cmd]} -o #{basename}.dat -m 1 -- #{args * ' '}"
+      syscmd = "#{Labenv.env[cmd]} -o #{basename}.fp -l 12 -g #{basename}.sg -- #{args * ' '}"
       t1 = Time.now
       run_cmd syscmd
       info = Machine.get_machine_env
@@ -96,7 +96,7 @@ begin
       Dir.foreach(data_dir) { |file|
         isDir = File.directory?(file)
         next if File.directory?(file)
-        if file =~ /.dat([.][a|i|d])?$/ or file =~ /.info$/ #check file type
+        if file =~ /.dat([.][a|i|d])?$/ or file =~ /.info$/ or file =~ /.fp$/ or file =~ /.fp.pt$/ or file =~ /.sg.[0-9][0-9]*$/#check file type
           basename = File.join(data_dir, file)
           f = File.new(basename, "rb")
           reply = RestClient.post('http://localhost:3000/upload',
