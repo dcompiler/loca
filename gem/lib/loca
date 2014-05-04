@@ -5,6 +5,7 @@ $: << LocaCmdDir
 
 require 'src/env'
 require 'src/machine'
+#require 'src/Anytaskset/anytaskset-mc'
 require 'net/http'
 require 'rest_client'
 require 'launchy'
@@ -27,6 +28,8 @@ def cmd_help
   puts "  -i\trun instruction analysis"
   puts "  -a\trun both data and instruction analysis"
   puts "prun\trun loca analysis on one parallel program "
+  puts "pfp\tget footprint of a prun"
+  puts "pmr\tget miss ratio of a pfp"
   puts "upload\tupload current data to server"
   puts "clean\t[todo]clean current data dir"
   puts "help"
@@ -77,11 +80,54 @@ begin
         f.puts info.to_yaml
       end
     elsif cmd == "prun"
-      puts 'test'
       data_dir = Labenv.paths[Labenv::DataDir]
       basename = Machine.get_output_file_name(args[0])
+      last = File.open("#{data_dir}/name.last","w")
+      last.write basename
       basename = File.join(data_dir, basename)
-      syscmd = "#{Labenv.env[cmd]} -o #{basename}.fp -l 12 -g #{basename}.sg -- #{args * ' '}"
+      syscmd = "#{Labenv.env[cmd]} -o #{basename}.fp.out -l 12 -g #{basename}.sg.out -- #{args * ' '}"
+      t1 = Time.now
+      run_cmd syscmd
+      info = Machine.get_machine_env
+      info[:time] = Time.now - t1
+      info[:status] = $?
+      info[:command] = syscmd
+      File.open("#{basename}.info", 'w', 0644) do |f|
+        f.puts info.to_yaml
+      end
+    elsif cmd == "pfp"
+      data_dir = Labenv.paths[Labenv::DataDir]
+      last = File.open("#{data_dir}/name.last","r")
+      basename = args[0] || basename=last.readline
+      basename = File.join(data_dir, basename)
+      puts 'please input the max number of threads'
+      m = $stdin.gets.chomp
+      puts 'please input the target thread set, divide by comma (i.e. 1,3)'
+      group = $stdin.gets.chomp
+      puts 'please input the co-running threads, divide by comma (i.e. 1,2,3,4)'
+      range = $stdin.gets.chomp
+      # ../anytaskset-sfp-compose.rb -m 8 -l 12 -p 2 -f fp.out -g sg.out --group=2,3 --range=1,2,3,4 > log
+      syscmd = "#{Labenv.env[cmd]} -m #{m} -l 12 -p 2 -f #{basename}.fp.out -g #{basename}.sg.out --group=#{group} --range=#{range} > #{basename}.fp"
+      t1 = Time.now
+      run_cmd syscmd
+      info = Machine.get_machine_env
+      info[:time] = Time.now - t1
+      info[:status] = $?
+      info[:command] = syscmd
+      File.open("#{basename}.info", 'w', 0644) do |f|
+        f.puts info.to_yaml
+      end
+    elsif cmd == "pmr"
+      data_dir = Labenv.paths[Labenv::DataDir]
+      last = File.open("#{data_dir}/name.last","r")
+      basename = args[0] || basename=last.readline
+      basename = File.join(data_dir, basename)
+      puts 'please input the cache size (byte)'
+      c = $stdin.gets.chomp
+      puts 'please input the target thread set, divide by comma (i.e. 1,3)'
+      group = $stdin.gets.chomp
+      # ../anytaskset-sfp-compose.rb -m 8 -l 12 -p 2 -f fp.out -g sg.out --group=2,3 --range=1,2,3,4 > log
+      syscmd = "#{Labenv.env[cmd]} -c #{c} -f #{basename}.fp -p #{basename}.fp.out.pt --group=#{group}"
       t1 = Time.now
       run_cmd syscmd
       info = Machine.get_machine_env
@@ -96,7 +142,7 @@ begin
       Dir.foreach(data_dir) { |file|
         isDir = File.directory?(file)
         next if File.directory?(file)
-        if file =~ /.dat([.][a|i|d])?$/ or file =~ /.info$/ or file =~ /.fp$/ or file =~ /.fp.pt$/ or file =~ /.sg.[0-9][0-9]*$/#check file type
+        if file =~ /.dat([.][a|i|d])?$/ or file =~ /.info$/ or file =~ /.fp$/#check file type
           basename = File.join(data_dir, file)
           f = File.new(basename, "rb")
           reply = RestClient.post('http://localhost:3000/upload',
