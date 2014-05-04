@@ -26,6 +26,7 @@ def cmd_help
   puts "  -d\t(default) run data analysis"
   puts "  -i\trun instruction analysis"
   puts "  -a\trun both data and instruction analysis"
+  puts "prun\trun loca analysis on one parallel program "
   puts "upload\tupload current data to server"
   puts "clean\t[todo]clean current data dir"
   puts "help"
@@ -75,7 +76,21 @@ begin
       File.open("#{basename}.info", 'w', 0644) do |f|
         f.puts info.to_yaml
       end
-
+    elsif cmd == "prun"
+      puts 'test'
+      data_dir = Labenv.paths[Labenv::DataDir]
+      basename = Machine.get_output_file_name(args[0])
+      basename = File.join(data_dir, basename)
+      syscmd = "#{Labenv.env[cmd]} -o #{basename}.dat -m 1 -- #{args * ' '}"
+      t1 = Time.now
+      run_cmd syscmd
+      info = Machine.get_machine_env
+      info[:time] = Time.now - t1
+      info[:status] = $?
+      info[:command] = syscmd
+      File.open("#{basename}.info", 'w', 0644) do |f|
+        f.puts info.to_yaml
+      end
     elsif cmd == "upload"
       data_dir = Labenv.paths[Labenv::DataDir]
       Dir.foreach(data_dir) { |file|

@@ -4,6 +4,8 @@ module LabExternal
   PinTools = "source/tools/"
   FootprintCode = "src/Footprint"
   FootprintTool = "Footprint"
+  AnytasksetCode = "src/Anytaskset"
+  AnytasksetTool = "Anytaskset"
 
   def self.temp
     Labenv.env[Labenv::PinDir] = '/localdisk/cding/pin/pin-2.9-39599-gcc.3.4.6-ia32_intel64-linux/'
@@ -35,6 +37,34 @@ module LabExternal
     #obj = File.join( tooldir, FootprintTool, obj_dir, "linear_fp.so" )
     raise "Object file #{obj} not found" unless File.file?(obj)
     Labenv.env[:footprint_obj] = obj
+    Labenv.save_env
+  end
+
+  def self.add_anytaskset_analyzer
+    require 'fileutils'
+    tooldir = File.join(Labenv.env[Labenv::PinDir], PinTools)
+    analyzer = File.join(LocaCmdDir, AnytasksetCode)
+    # copy the files over
+    Dir.chdir( tooldir )
+    begin
+      FileUtils.cp_r(analyzer, tooldir)
+      Dir.chdir( AnytasksetTool)
+      run_cmd 'make'
+      raise "Fail to build the anytaskset analyzer" unless $?.success?
+    rescue Exception => e
+      msg = "Copying/making anytaskset analyzer directory failed"
+      puts msg
+      msg += e.backtrace.map{|k| k.to_s + "\n"}.to_s
+      puts "Type ok to continue"
+      is_ok = $stdin.gets.chomp
+      raise msg unless is_ok.downcase == 'ok'
+      Dir.chdir( AnytasksetTool )
+    end
+    obj_dir = Dir.entries(".").find {|i| i.match /^obj/}
+    raise "Object file directory not found" if obj_dir == nil
+    obj = File.join( tooldir, AnytasksetTool, obj_dir, "anytaskset-fp.so" )
+    raise "Object file #{obj} not found" unless File.file?(obj)
+    Labenv.env[:anytaskset_obj] = obj
     Labenv.save_env
   end
 
