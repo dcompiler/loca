@@ -158,15 +158,56 @@ Q
 Q
 	end
 
-	def self.imagePage (currentDir, program, metric)
+	def self.imagePage (currentDir, program, metric,isp)
 		longMetric = case metric
 			when "fp" then "Average Footprint"
 			when "lf" then "Data Lifetime in Cache"
 			when "mr" then "Miss Ratio Curve"
 			when "rd" then "Reuse Distance Distribution"
-		end			
+		end
+    if isp
+      return <<Q
+<!DOCTYPE html PUBLIC>
+<head>
+<title>Data Plot</title>
+</head>
+	<body>
+		<h1 align="center">#{program} - #{longMetric}</h1>
+		<table align="center">
+		<tr>
 
-		return <<Q
+		<td><form method="POST">
+		<button type="submit" name="goToMetric" value="fp">Average Footprint</button>
+		<input type="hidden" name="whichForm" value="typeForm">
+		</form></td>
+
+		<td><form method="POST">
+		<button type="submit" name="goToMetric" value="lf" disabled>Data Lifetime in Cache</button>
+		<input type="hidden" name="whichForm" value="typeForm">
+		</form></td>
+
+		<td><form method="POST">
+		<button type="submit" name="goToMetric" value="mr" disabled>Miss Ratio Curve</button>
+		<input type="hidden" name="whichForm" value="typeForm">
+		</form></td>
+
+		<td><form method="POST">
+		<button type="submit" name="goToMetric" value="rd" disabled>Reuse Distance Distribution</button>
+		<input type="hidden" name="whichForm" value="typeForm">
+		</form></td>
+
+		</tr>
+
+		</table>
+
+		<img src="zoom_#{program}.#{metric}.png" />
+		<img src="#{program}.#{metric}.png" />
+		<br>
+		#{rangeForm("#{program}", "#{metric}")}
+	</body>
+Q
+    else
+      return <<Q
 <!DOCTYPE html PUBLIC>
 <head>
 <title>Data Plot</title>
@@ -206,6 +247,7 @@ Q
 		#{rangeForm("#{program}", "#{metric}")}
 	</body>
 Q
+    end
 	end
 
 end
