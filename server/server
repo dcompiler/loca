@@ -93,15 +93,17 @@ class CServer
           end
         end
       else
-        metric="fp"
+        ["fp", "lf"].each do |metric|
           File.open("#{program}.#{metric}.html", "w") do |imageHTML|
             imageHTML.puts Server.imagePage(currentDir, "#{program}", "#{metric}", true)
+          end
         end
       end
 
       ## Plot the graphs.
       # If .png file doesn't exist, make it.
-      if !File.file?(File.join(currentDir, "#{program}.fp.png"))
+      # .fp file may update, so re-plot anyway
+      if !File.file?(File.join(currentDir, "#{program}.fp.png")) or ext == ".fp"
         if ext =~ /[a|i|d|dat]$/
           Plot.default(currentDir, program, ext)
         else

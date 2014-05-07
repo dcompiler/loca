@@ -16,3 +16,15 @@ png(file=saveto, width=600, height=450)
 plot(x, y, type="l", lty=1, xlab=xlab, ylab=ylab,
 	frame.plot=TRUE, col="red", main="Average Footprint")
 dev.off()
+
+#draw lifetime curve
+saveto <- sprintf("%s.lf.png", program)
+x <- rawdata[,2]
+y <- rawdata[,1] * 64 # "* 64" converts to bytes
+xlab <- "cache size"
+ylab <- "lifetime"
+legend <- c("average footprint")
+png(file=saveto, width=600, height=450)
+plot(x, y, type="l", lty=1, xlab=xlab, ylab=ylab,
+	frame.plot=TRUE, col="red", main= "Lifetime Curves")
+dev.off()

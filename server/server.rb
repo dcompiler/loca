@@ -182,7 +182,7 @@ Q
 		</form></td>
 
 		<td><form method="POST">
-		<button type="submit" name="goToMetric" value="lf" disabled>Data Lifetime in Cache</button>
+		<button type="submit" name="goToMetric" value="lf">Data Lifetime in Cache</button>
 		<input type="hidden" name="whichForm" value="typeForm">
 		</form></td>
 

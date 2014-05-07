@@ -20,12 +20,13 @@ require 'fileutils' #instead of 'ftools'
 
 	def self.default (currentDir, program, ext)
 		rplot(currentDir, program, ext, false)
-		metric = "fp"
+    ["fp", "lf"].each do |metric|
 			FileUtils.cp(File.join( currentDir, \
 									 program + ".#{metric}.png"), \
 									 File.join( currentDir, \
 									 "zoom_" + program + ".#{metric}.png"))
-	end	
+      end
+  end
 
 	def self.zoom (currentDir, program, ext, xmin, xmax, metric)
 		columnNum = (metric == "fp")? 1 : 2
@@ -37,7 +38,14 @@ require 'fileutils' #instead of 'ftools'
 						and (line.split[columnNum].to_f <= xmax)
 						    writefile.puts line
 						end
-					end
+          end
+        else
+          while line = f.gets # Print rest of lines where column 1 is in range
+            if  (line.split[columnNum].to_f*64.0 >= xmin) \
+						and (line.split[columnNum].to_f*64.0 <= xmax)
+              writefile.puts line
+            end
+          end
 				end
 			end
 		end
