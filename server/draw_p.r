@@ -19,12 +19,13 @@ dev.off()
 
 #draw lifetime curve
 saveto <- sprintf("%s.lf.png", program)
-x <- rawdata[,2]
-y <- rawdata[,1] * 64 # "* 64" converts to bytes
-xlab <- "cache size"
-ylab <- "lifetime"
-legend <- c("average footprint")
+x <- rawdata[,2] * 64
+y <- rawdata[,1]
+xlab <- "cache size (bytes)"
+ylab <- "lifetime (accesses)"
+legend <- c("lifetime")
 png(file=saveto, width=600, height=450)
 plot(x, y, type="l", lty=1, xlab=xlab, ylab=ylab,
-	frame.plot=TRUE, col="red", main= "Lifetime Curves")
+	frame.plot=TRUE, col="red", main="Data Lifetime in Cache")
+legend("topleft", legend, lty=1, col="red", title=message)
 dev.off()
