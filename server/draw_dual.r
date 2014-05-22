@@ -3,7 +3,7 @@ args <- commandArgs(TRUE)
 app <- args[1]
 ext <- args[2]
 title <- sprintf("average footprint curves of %s", app)
-rawdata <- read.table(sprintf("%s%s", app,ext))
+rawdata <- read.table(sprintf("%s%s", app,ext), skip=1)
 legend <- c("cache block size is 64 bytes", "cache block size is 4 bytes")
 ltys <- c(1, 2)
 cols <- c("red", "blue")

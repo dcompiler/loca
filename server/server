@@ -180,7 +180,7 @@ class UpServer
       if (name =~ /.dat([.][a|i|d])?$/ or name =~ /.info$/ or name =~ /.fp$/) #check file type
         res = File.open("#{HomeDir}/data/#{name}", "wb")
         res.puts request.params["upload"][:tempfile].readlines
-        #res.close
+        res.close
       end
     end
     contents = ''

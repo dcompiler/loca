@@ -3,7 +3,7 @@ args <- commandArgs(TRUE)
 program <- args[1]
 ext <- args[2]
 
-rawdata <- read.table(paste(program, ext, sep=""), skip=1)
+rawdata <- read.table(paste(program, ext, sep=""))
 
 #draw footprint curve
 saveto <- sprintf("%s.fp.png", program)
