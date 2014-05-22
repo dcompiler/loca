@@ -185,7 +185,7 @@ class UpServer
     end
     contents = ''
     if name =~ /.dat([.][a|i|d])?$/ or name =~ /.fp$/
-      contents = "http://localhost:3000/data/#{name}"
+      contents = "data/#{name}"
     end
     headers = {
         'Content-Length' => contents.bytesize.to_s,

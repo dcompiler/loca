@@ -32,6 +32,7 @@ def cmd_help
   puts "pfp\tget footprint of a prun"
   puts "pmr\tget miss ratio of a pfp"
   puts "upload\tupload current data to server"
+  puts "  -r [server address]\tupload to remote servers"
   puts "clean\t[todo]clean current data dir"
   puts "help"
 end
@@ -168,18 +169,19 @@ begin
       run_cmd syscmd
     elsif cmd == "upload"
       data_dir = Labenv.paths[Labenv::DataDir]
+      url = (args[0] != '-r')?'http://localhost:3000/upload':'http://107.170.12.36:3000/upload'
       Dir.foreach(data_dir) { |file|
         isDir = File.directory?(file)
         next if File.directory?(file)
         if file =~ /.dat([.][a|i|d])?$/ or file =~ /.info$/ or file =~ /.fp$/#check file type
           basename = File.join(data_dir, file)
           f = File.new(basename, "rb")
-          reply = RestClient.post('http://localhost:3000/upload',
+          reply = RestClient.post(url,
                                   :upload => f
           )
           if reply != ''
-            puts reply
-            Launchy.open(reply)
+            puts url[0..-7]+reply
+            Launchy.open(url[0..-7]+reply)
           end
         end
       }

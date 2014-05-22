@@ -29,7 +29,7 @@ require 'fileutils' #instead of 'ftools'
   end
 
 	def self.zoom (currentDir, program, ext, xmin, xmax, metric)
-		columnNum = (metric == "fp" or metric = "lf")? 1 : 2
+		columnNum = (metric == "fp" or metric == "lf")? 1 : 2
 		File.open(File.join( currentDir, "zoom_#{program}#{ext}"), "w") do |writefile|
 			File.open(File.join( currentDir, "#{program}#{ext}"), "r") do |f|
 				if (metric == "fp")
