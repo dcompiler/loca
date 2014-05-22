@@ -169,7 +169,7 @@ begin
       run_cmd syscmd
     elsif cmd == "upload"
       data_dir = Labenv.paths[Labenv::DataDir]
-      url = (args[0] != '-r')?'http://localhost:3000/upload':'http://107.170.12.36:3000/upload'
+      url = (args[0] != '-r')?'http://localhost:3000/upload':'http://loca.highpower.me:3000/upload'
       Dir.foreach(data_dir) { |file|
         isDir = File.directory?(file)
         next if File.directory?(file)
