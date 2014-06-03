@@ -2,6 +2,7 @@
 
 require_relative 'server'
 require_relative 'plot'
+require_relative 'plot_p'
 require 'fileutils'
 require 'rack'
 
@@ -34,8 +35,9 @@ end
 puts "LocaServer: serving from #{HomeDir}"
 
 FileUtils.cp_r("#{LocaServerDir}/static/.", \
-								 "#{HomeDir}/.static/")
-
+								  "#{HomeDir}/.static/")
+FileUtils.cp_r("#{LocaServerDir}/favicon.ico", \
+								  "#{HomeDir}/")
 
 
 module Util
@@ -59,7 +61,7 @@ class CServer
     currentDir = File.join("./", File.dirname(req)) #{}"./"
 
     ## Create list of items in directory.
-    if File.directory?( fullreq )
+    if File.directory?(fullreq)
       if req == "/"
         currentDir = "./"
       else
@@ -67,7 +69,7 @@ class CServer
       end
 
       files, dirs = Server.browse(currentDir)
-      htmlString  = Server.headMatter(currentDir)
+      htmlString = Server.headMatter(currentDir)
       htmlString += Server.tableSection(currentDir, files, dirs)
       htmlString += Server.footMatter()
 
@@ -75,25 +77,38 @@ class CServer
       htmlFile.write(htmlString)
       htmlFile.close
 
-      contents = File.open(".current.html",'r') {|f| f.read}
+      contents = File.open(".current.html", 'r') { |f| f.read }
       headers = {
           'Content-Type' => 'text/html',
           'Content-Length' => contents.bytesize.to_s,
       }
       ## Create contents of the plotting page.
-    elsif ext == ".dat" or ext == ".fp"
+    elsif ext =~ /[a|i|d|dat]$/ or ext == ".fp"
       program = File.basename(req, ext) # strips .dat or .fp from req.
       ## Create HTML files to display dynamic picture.
-      ["fp", "lf", "mr", "rd"].each do |metric|
-        File.open( "#{program}.#{metric}.html", "w" ) do |imageHTML|
-          imageHTML.puts Server.imagePage(currentDir, "#{program}", "#{metric}")
+      if ext =~ /[a|i|d|dat]$/
+        ["fp", "lf", "mr", "rd"].each do |metric|
+          File.open("#{program}.#{metric}.html", "w") do |imageHTML|
+            imageHTML.puts Server.imagePage(currentDir, "#{program}", "#{metric}", false)
+          end
+        end
+      else
+        ["fp", "lf"].each do |metric|
+          File.open("#{program}.#{metric}.html", "w") do |imageHTML|
+            imageHTML.puts Server.imagePage(currentDir, "#{program}", "#{metric}", true)
+          end
         end
       end
 
       ## Plot the graphs.
       # If .png file doesn't exist, make it.
-      if ! File.file?( File.join(currentDir, "#{program}.fp.png") )
-        Plot.default(currentDir, program, ext)
+      # .fp file may update, so re-plot anyway
+      if !File.file?(File.join(currentDir, "#{program}.fp.png")) or ext == ".fp"
+        if ext =~ /[a|i|d|dat]$/
+          Plot.default(currentDir, program, ext)
+        else
+          Plot_p.default(currentDir, program, ext)
+        end
       end
 
       ## If the request is a post, read form data and plot
@@ -107,35 +122,45 @@ class CServer
           metric = request.params["metric"]
           xmin = request.params["xmin"].to_f
           xmax = request.params["xmax"].to_f
-          Plot.zoom(currentDir, program, ext, xmin, xmax, metric)
+          if ext =~ /[a|i|d|dat]$/
+            Plot.zoom(currentDir, program, ext, xmin, xmax, metric)
+          else
+            Plot_p.zoom(currentDir, program, ext, xmin, xmax, metric)
+          end
+
           plothtml = "#{program}.#{metric}.html"
-          contents = File.open( plothtml, 'r') {|f| f.read}
+          contents = File.open(plothtml, 'r') { |f| f.read }
         elsif (request.params["whichForm"] == "typeForm")
           goToMetric = request.params["goToMetric"]
-          contents = File.open("#{program}.#{goToMetric}.html", 'r') {|f| f.read}
+          contents = File.open("#{program}.#{goToMetric}.html", 'r') { |f| f.read }
         end
       else
-        contents = File.open("#{program}.fp.html", 'r') {|f| f.read}
+        contents = File.open("#{program}.fp.html", 'r') { |f| f.read }
       end
 
       ## Create headers.
       headers = {
-          'Content-Type'   => 'text/html',
+          'Content-Type' => 'text/html',
           'Content-Length' => contents.bytesize.to_s,
       }
 
     else
       req = (req == '/') ? '.current.html' : ".#{req}"
       type = case req
-               when /\.html$/ then 'text/html'
-               when /\.gif$/ then 'image/gif'
-               when /\.ico$/ then 'image/x-icon'
-               when /\.pdf$/ then 'image/png'
-               else 'text/plain'
+               when /\.html$/ then
+                 'text/html'
+               when /\.gif$/ then
+                 'image/gif'
+               when /\.ico$/ then
+                 'image/x-icon'
+               when /\.pdf$/ then
+                 'image/png'
+               else
+                 'text/plain'
              end
 
       return unless File.file?(req)
-      contents = File.open(req,'r') {|file| file.read}
+      contents = File.open(req, 'r') { |file| file.read }
       headers = {
           'Content-Type' => type,
           'Content-Length' => contents.bytesize.to_s,
@@ -149,18 +174,18 @@ class UpServer
   def call(env)
     request = Rack::Request.new(env)
     name = ''
-    if(request.path == '/upload')
+    if (request.path == '/upload')
       name = request.params["upload"][:filename]
       puts name
-      if (name =~ /.dat$/ or name =~ /.info$/) #check file type
-        res = File.open("#{HomeDir}/data/#{name}","wb")
+      if (name =~ /.dat([.][a|i|d])?$/ or name =~ /.info$/ or name =~ /.fp$/) #check file type
+        res = File.open("#{HomeDir}/data/#{name}", "wb")
         res.puts request.params["upload"][:tempfile].readlines
-        #res.close
+        res.close
       end
     end
     contents = ''
-    if name =~ /.dat$/
-      contents = "http://localhost:3000/data/#{name}"
+    if name =~ /.dat([.][a|i|d])?$/ or name =~ /.fp$/
+      contents = "data/#{name}"
     end
     headers = {
         'Content-Length' => contents.bytesize.to_s,
@@ -173,8 +198,8 @@ s = CServer.new
 up = UpServer.new
 
 app = Rack::Builder.new do
-  map('/') {run s}
-  map('/upload') {run up}
+  map('/') { run s }
+  map('/upload') { run up }
 end
 
 Rack::Handler::WEBrick.run(app, :Port => 3000)

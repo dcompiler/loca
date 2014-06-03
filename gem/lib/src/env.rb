@@ -47,8 +47,12 @@ module Labenv
 
     require 'src/external'
     LabExternal.add_footprint_analyzer  # Pin tool and compile
+    LabExternal.add_anytaskset_analyzer  # Pin tool and compile
 
     Labenv.env["run"] = "#{File.join(Labenv.env[PinDir],"pin")} -t #{Labenv.env[:footprint_obj]}"
+    Labenv.env["prun"] = "#{File.join(Labenv.env[PinDir],"pin")} -t #{Labenv.env[:anytaskset_obj]}"
+    Labenv.env["pfp"] = "#{LocaCmdDir}/src/Anytaskset/anytaskset-sfp-compose.rb"
+    Labenv.env["pmr"] = "#{LocaCmdDir}/src/Anytaskset/anytaskset-mc.rb"
     Labenv.env["upload"] = "rsync -trv ~/.loca/data #{Labenv.env[LocaServer]}"
 
     # accepted = gui.verify( hash2arrlist(cmd) )

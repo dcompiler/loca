@@ -5,6 +5,7 @@ $: << LocaCmdDir
 
 require 'src/env'
 require 'src/machine'
+#require 'src/Anytaskset/anytaskset-mc'
 require 'net/http'
 require 'rest_client'
 require 'launchy'
@@ -26,14 +27,19 @@ def cmd_help
   puts "  -d\t(default) run data analysis"
   puts "  -i\trun instruction analysis"
   puts "  -a\trun both data and instruction analysis"
+  puts "mr\trun both data and instruction analysis"
+  puts "prun\trun loca analysis on one parallel program "
+  puts "pfp\tget footprint of a prun"
+  puts "pmr\tget miss ratio of a pfp"
   puts "upload\tupload current data to server"
+  puts "  -r [server address]\tupload to remote servers"
   puts "clean\t[todo]clean current data dir"
   puts "help"
 end
 
 if ARGV.size >= 1
   cmd = ARGV.shift
-    runpara = ARGV.shift if cmd == "run"
+  runpara = ARGV.shift if cmd == "run"
   args = ARGV
 else
   cmd_help
@@ -50,13 +56,15 @@ begin
   else
     if Labenv.env == nil
       warn "Please run '#{$0.split('/')[-1]} config' first"
-      exit( 1 )
+      exit(1)
     end
 
     if cmd == "run"
       data_dir = Labenv.paths[Labenv::DataDir]
-      basename = Machine.get_output_file_name( args[0] )
-      basename = File.join( data_dir, basename )
+      basename = Machine.get_output_file_name(args[0])
+      last = File.open("#{data_dir}/name.last","w")
+      last.write basename
+      basename = File.join(data_dir, basename)
       if runpara == "-d"
         syscmd = "#{Labenv.env[cmd]} -o #{basename}.dat -m 1 -- #{args * ' '}"
       elsif runpara == "-i"
@@ -72,22 +80,108 @@ begin
       info[:time] = Time.now - t1
       info[:status] = $?
       info[:command] = syscmd
-      File.open( "#{basename}.info", 'w', 0644) do |f|
+      File.open("#{basename}.info", 'w', 0644) do |f|
+        f.puts info.to_yaml
+      end
+    elsif cmd == "mr"
+      data_dir = Labenv.paths[Labenv::DataDir]
+      last = File.open("#{data_dir}/name.last","r")
+      basename = args[0] || basename=last.readline
+      puts 'please input the test metric a/d/i for All/Data/Instructions'
+      metric = $stdin.gets.chomp
+      basename = File.join(data_dir,"#{basename}.dat.#{metric}")
+      puts 'please input the cache size (byte)'
+      cachesize = $stdin.gets.chomp.to_f
+      #calc the miss ratio from data
+      File.open(basename, "r") do |f|
+        firstline=f.gets #skip the first line
+        accesscount = firstline.split[0][2..-1].to_i
+        dis64 = firstline.split[1][3..-1].to_i
+        dis4 = firstline.split[2][3..-1].to_i
+        while line = f.gets
+          if line.split[1].to_f <= cachesize
+          lastline = line
+          else
+            break
+          end
+        end
+        unless lastline == nil
+          x1=lastline.split[1].to_f
+          x2=line.split[1].to_f
+          y1=lastline.split[4].to_f
+          y2=line.split[4].to_f
+          mr1=y1+(cachesize-x1)*(y2-y1)/(x2-x1)
+          y1=lastline.split[7].to_f
+          y2=line.split[7].to_f
+          mr2=y1+(cachesize-x1)*(y2-y1)/(x2-x1)
+          puts "Access count:\t#{accesscount}"
+          puts "For 64 byte cache block"
+          puts "\tMax footprint:\t#{dis64}"
+          puts "\tMiss ratio:\t#{mr1}"
+          puts "For 4 byte cache block"
+          puts "\tMax footprint:\t#{dis4}"
+          puts "\tMiss ratio:\t#{mr2}"
+        else
+          raise "wrong cache size"
+        end
+      end
+
+    elsif cmd == "prun"
+      data_dir = Labenv.paths[Labenv::DataDir]
+      basename = Machine.get_output_file_name(args[0])
+      last = File.open("#{data_dir}/name.last.p","w")
+      last.write basename
+      basename = File.join(data_dir, basename)
+      syscmd = "#{Labenv.env[cmd]} -o #{basename}.fp.out -l 12 -g #{basename}.sg.out -- #{args * ' '}"
+      t1 = Time.now
+      run_cmd syscmd
+      info = Machine.get_machine_env
+      info[:time] = Time.now - t1
+      info[:status] = $?
+      info[:command] = syscmd
+      File.open("#{basename}.info", 'w', 0644) do |f|
         f.puts info.to_yaml
       end
 
+    elsif cmd == "pfp"
+      data_dir = Labenv.paths[Labenv::DataDir]
+      last = File.open("#{data_dir}/name.last.p","r")
+      basename = args[0] || basename=last.readline
+      basename = File.join(data_dir, basename)
+      puts 'please input the max number of threads'
+      m = $stdin.gets.chomp
+      puts 'please input the target thread set, divide by comma (i.e. 1,3)'
+      group = $stdin.gets.chomp
+      puts 'please input the co-running threads, divide by comma (i.e. 1,2,3,4)'
+      range = $stdin.gets.chomp
+      syscmd = "#{Labenv.env[cmd]} -m #{m} -l 12 -p 2 -f #{basename}.fp.out -g #{basename}.sg.out --group=#{group} --range=#{range} > #{basename}.fp"
+      run_cmd syscmd
+    elsif cmd == "pmr"
+      data_dir = Labenv.paths[Labenv::DataDir]
+      last = File.open("#{data_dir}/name.last.p","r")
+      basename = args[0] || basename=last.readline
+      basename = File.join(data_dir, basename)
+      puts 'please input the cache size (byte)'
+      c = $stdin.gets.chomp
+      puts 'please input the target thread set, divide by comma (i.e. 1,3)'
+      group = $stdin.gets.chomp
+      syscmd = "#{Labenv.env[cmd]} -c #{c} -f #{basename}.fp -p #{basename}.fp.out.pt --group=#{group}"
+      run_cmd syscmd
     elsif cmd == "upload"
       data_dir = Labenv.paths[Labenv::DataDir]
+      url = (args[0] != '-r')?'http://localhost:3000/upload':'http://loca.highpower.me:3000/upload'
       Dir.foreach(data_dir) { |file|
-        if file !~ /^\. */
-          basename = File.join( data_dir, file )
+        isDir = File.directory?(file)
+        next if File.directory?(file)
+        if file =~ /.dat([.][a|i|d])?$/ or file =~ /.info$/ or file =~ /.fp$/#check file type
+          basename = File.join(data_dir, file)
           f = File.new(basename, "rb")
-          reply = RestClient.post('http://localhost:3000/upload',
-                                  :upload =>  f
+          reply = RestClient.post(url,
+                                  :upload => f
           )
           if reply != ''
-            puts reply
-            Launchy.open(reply)
+            puts url[0..-7]+reply
+            Launchy.open(url[0..-7]+reply)
           end
         end
       }
