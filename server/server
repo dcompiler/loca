@@ -21,9 +21,9 @@ if File.expand_path(".").split("/")[-1] == 'data'
   HomeDir = File.expand_path(".")
 else
   begin
-    require '../gem/lib/src/env'
+    require_relative '../gem/lib/src/env' # use require '../X' for parent directory file is no longer supported in 1.9.2 or above
     data_dir = Labenv.paths[Labenv::DataDir]
-  rescue Exception
+    rescue Exception
   end
   if data_dir != nil
     HomeDir = data_dir
