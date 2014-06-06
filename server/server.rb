@@ -10,15 +10,15 @@ module Server
 			fullname = File.join(currentDir, item)
 			# Only show unhidden".dat" ".fp", and ".info" files and directories.
 			if File.extname(item) == ".dat" \
-			or File.extname(item) == ".dat.a" \
-			or File.extname(item) == ".dat.i" \
-			or File.extname(item) == ".dat.d" \
-			or File.extname(item) == ".fp" \
-			or File.extname(item) == ".gif" \
-			or File.extname(item) == ".info" \
-			or File.directory?(fullname) \
-                        and item[0,1] != "." \
-			and item[0,4] != "zoom"
+			  or item[-6,6] == ".dat.a" \
+			  or item[-6,6] == ".dat.i" \
+			  or item[-6,6] == ".dat.d" \
+			  or item[-3,3] == ".fp" \
+			  or item[-4,4] == ".gif" \
+			  or item[-5,5] == ".info" \
+			  or File.directory?(fullname) \
+			  and item[0,1] != "." \
+			  and item[0,4] != "zoom"
 				files << item if File.file?(fullname)
 				dirs << item if File.directory?(fullname)
 			end
