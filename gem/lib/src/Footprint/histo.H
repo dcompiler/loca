@@ -96,7 +96,7 @@ namespace histo
 
 	unsigned index;
 	int msb, shift;
-
+/*
 #if defined (__i386__) && defined (__GNUC__)
 	UINT32 hi = value >> 32;
 	if (hi) {
@@ -127,6 +127,8 @@ namespace histo
 	cerr << "Wrong architecture or compiler!" << endl;
 	assert(0);
 #endif 
+*/
+	msb = 63 - __builtin_clzll(value);
 	shift = msb - SUBLOG_BITS;
 	index = value >> shift;
 	index &= (1<<SUBLOG_BITS) - 1;

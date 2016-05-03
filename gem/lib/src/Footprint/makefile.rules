@@ -17,16 +17,10 @@
 # This defines tests which run tools of the same name.  This is simply for convenience to avoid
 # defining the test name twice (once in TOOL_ROOTS and again in TEST_ROOTS).
 # Tests defined here should not be defined in TOOL_ROOTS and TEST_ROOTS.
-TEST_TOOL_ROOTS := dual_fp_all#linear_fp
+TEST_TOOL_ROOTS := linear_fp
 
 # This defines the tests to be run that were not already defined in TEST_TOOL_ROOTS.
 TEST_ROOTS :=
-
-# This defines a list of tests that should run in the "short" sanity. Tests in this list must also
-# appear either in the TEST_TOOL_ROOTS or the TEST_ROOTS list.
-# If the entire directory should be tested in sanity, assign TEST_TOOL_ROOTS and TEST_ROOTS to the
-# SANITY_SUBSET variable in the tests section below (see example in makefile.rules.tmpl).
-SANITY_SUBSET :=
 
 # This defines the tools which will be run during the the tests, and were not already defined in
 # TEST_TOOL_ROOTS.
@@ -51,6 +45,12 @@ DLL_ROOTS :=
 
 # This defines any static libraries (archives), that need to be built.
 LIB_ROOTS :=
+
+###### Define the sanity subset ######
+
+# This defines the list of tests that should run in sanity. It should include all the tests listed in
+# TEST_TOOL_ROOTS and TEST_ROOTS excluding only unstable tests.
+SANITY_SUBSET := $(TEST_TOOL_ROOTS) $(TEST_ROOTS)
 
 
 ##############################################################
