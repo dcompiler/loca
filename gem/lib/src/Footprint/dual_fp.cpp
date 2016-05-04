@@ -42,7 +42,7 @@ static stamp_tt M[2], stamps[MAP_SIZE][2];//Used as address hash
 static stamp_tt first_count_i[MAX_WINDOW][2];
 static stamp_tt first_count[MAX_WINDOW][2];
 static stamp_tt count_i[MAX_WINDOW][2];
-static stamp_tt count[MAX_WINDOW][2];
+static stamp_tt lcount[MAX_WINDOW][2];
 struct timeval start;//start time of profiling
 struct timeval finish;//stop time of profiling
 
@@ -88,7 +88,7 @@ VOID RecordMem(VOID * ip, VOID * addr)
       first_count[idx][i] += 1;
     }else{
       count_i[idx][i] += N - prev_access;
-      count[idx][i] += 1;
+      lcount[idx][i] += 1;
     }
   }
 
@@ -155,15 +155,15 @@ VOID Fini(INT32 code, VOID *v){
     ws = sublog_index_to_value<MAX_WINDOW, SUBLOG_BITS>(i);
     fp = ( 1.0 * (( N - sum ) * ws + sum_i)) / ( N - ws + 1 );
     sum_i += count_i[i][0] + first_count_i[i][0];
-    sum += count[i][0] + first_count[i][0];
-    mr -= count[i][0] * 1.0 / N;
-    ResultFile << i << "\t" << ws << "\t" << fp*(1<<WORDSHIFT1) << "\t" <<  count[i][0]*1.0/N << "\t" << mr << "\t";
+    sum += lcount[i][0] + first_count[i][0];
+    mr -= lcount[i][0] * 1.0 / N;
+    ResultFile << i << "\t" << ws << "\t" << fp*(1<<WORDSHIFT1) << "\t" <<  lcount[i][0]*1.0/N << "\t" << mr << "\t";
 
     fp2 = ( 1.0 * (( N - sum2 ) * ws + sum_i2)) / (N - ws + 1);
     sum_i2 += count_i[i][1] + first_count_i[i][1];
-    sum2 += count[i][1] + first_count[i][1];
-    mr2 -= count[i][1] * 1.0 / N;
-    ResultFile << fp2*(1<<WORDSHIFT2) << "\t" <<  count[i][1] * 1.0 / N << "\t" << mr2 << endl;
+    sum2 += lcount[i][1] + first_count[i][1];
+    mr2 -= lcount[i][1] * 1.0 / N;
+    ResultFile << fp2*(1<<WORDSHIFT2) << "\t" <<  lcount[i][1] * 1.0 / N << "\t" << mr2 << endl;
   }
   ResultFile.close();  
   
@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
     }
 
     memset (stamps, 0, MAP_SIZE*sizeof(stamp_t)*2);
-    memset (count, 0, MAX_WINDOW*sizeof(stamp_tt)*2);
+    memset (lcount, 0, MAX_WINDOW*sizeof(stamp_tt)*2);
     memset (count_i, 0, MAX_WINDOW*sizeof(stamp_tt)*2);
     memset (first_count, 0, MAX_WINDOW*sizeof(stamp_tt)*2);
     memset (first_count_i, 0, MAX_WINDOW*sizeof(stamp_tt)*2);

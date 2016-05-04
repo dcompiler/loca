@@ -4,8 +4,8 @@ module LabExternal
   PinTools = "source/tools/"
   FootprintCode = "src/Footprint"
   FootprintTool = "Footprint"
-  AnytasksetCode = "src/Anytaskset"
-  AnytasksetTool = "Anytaskset"
+  #AnytasksetCode = "src/Anytaskset"
+  #AnytasksetTool = "Anytaskset"
 
   def self.temp
     Labenv.env[Labenv::PinDir] = '/localdisk/cding/pin/pin-2.9-39599-gcc.3.4.6-ia32_intel64-linux/'
@@ -40,6 +40,8 @@ module LabExternal
     Labenv.save_env
   end
 
+  # following code is for experimental anytaskset
+=begin
   def self.add_anytaskset_analyzer
     require 'fileutils'
     tooldir = File.join(Labenv.env[Labenv::PinDir], PinTools)
@@ -67,6 +69,7 @@ module LabExternal
     Labenv.env[:anytaskset_obj] = obj
     Labenv.save_env
   end
+=end
 
   def self.remove_footprint_analyzer
     require 'fileutils'

@@ -7,8 +7,8 @@ require 'src/env'
 require 'src/machine'
 #require 'src/Anytaskset/anytaskset-mc'
 require 'net/http'
-require 'rest_client'
-require 'launchy'
+#require 'rest_client'
+#require 'launchy'
 
 $Debug = true
 $DryRun = false
@@ -28,9 +28,9 @@ def cmd_help
   puts "  -i\trun instruction analysis"
   puts "  -a\trun both data and instruction analysis"
   puts "mr\trun both data and instruction analysis"
-  puts "prun\trun loca analysis on one parallel program "
-  puts "pfp\tget footprint of a prun"
-  puts "pmr\tget miss ratio of a pfp"
+#  puts "prun\trun loca analysis on one parallel program "
+#  puts "pfp\tget footprint of a prun"
+#  puts "pmr\tget miss ratio of a pfp"
   puts "upload\tupload current data to server"
   puts "  -r [server address]\tupload to remote servers"
   puts "clean\t[todo]clean current data dir"
@@ -126,6 +126,7 @@ begin
         end
       end
 
+=begin
     elsif cmd == "prun"
       data_dir = Labenv.paths[Labenv::DataDir]
       basename = Machine.get_output_file_name(args[0])
@@ -185,6 +186,7 @@ begin
           end
         end
       }
+=end
     elsif cmd == "clean"
       #todo
       puts "[todo] comming soon, please manually empty the data dir"
