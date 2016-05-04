@@ -7,8 +7,8 @@ require 'src/env'
 require 'src/machine'
 #require 'src/Anytaskset/anytaskset-mc'
 require 'net/http'
-#require 'rest_client'
-#require 'launchy'
+require 'rest_client'
+require 'launchy'
 
 $Debug = true
 $DryRun = false
@@ -168,6 +168,8 @@ begin
       group = $stdin.gets.chomp
       syscmd = "#{Labenv.env[cmd]} -c #{c} -f #{basename}.fp -p #{basename}.fp.out.pt --group=#{group}"
       run_cmd syscmd
+=end
+
     elsif cmd == "upload"
       data_dir = Labenv.paths[Labenv::DataDir]
       url = (args[0] != '-r')?'http://localhost:3000/upload':'http://loca.highpower.me:3000/upload'
@@ -186,7 +188,6 @@ begin
           end
         end
       }
-=end
     elsif cmd == "clean"
       #todo
       puts "[todo] comming soon, please manually empty the data dir"

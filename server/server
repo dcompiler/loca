@@ -178,7 +178,7 @@ class UpServer
       name = request.params["upload"][:filename]
       puts name
       if (name =~ /.dat([.][a|i|d])?$/ or name =~ /.info$/ or name =~ /.fp$/) #check file type
-        res = File.open("#{HomeDir}/data/#{name}", "wb")
+        res = File.open("#{HomeDir}/#{name}", "wb")
         res.puts request.params["upload"][:tempfile].readlines
         res.close
       end
