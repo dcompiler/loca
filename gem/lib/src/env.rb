@@ -46,7 +46,7 @@ module Labenv
     save_env
 
     require 'src/external'
-    LabExternal.add_footprint_analyzer  # Pin tool and compile
+    LabExternal.add_footprint_analyzer  # Pin tool and compile -- if this throws errors, use the following line
     #LabExternal.add_anytaskset_analyzer  # Pin tool and compile
 
     Labenv.env["run"] = "#{File.join(Labenv.env[PinDir],"pin")} -t #{Labenv.env[:footprint_obj]}"

@@ -21,6 +21,8 @@ begin
   end
 rescue Exception
   warn "Loca cannot send the error report. Abort."
+  warn "Printing message here: "
+  warn msg
 end
 
 end

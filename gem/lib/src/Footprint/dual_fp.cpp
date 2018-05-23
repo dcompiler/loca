@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 #include "pin.H"
-#include "portability.H"
+#include "xed-portability.h"
 #include "histo.H"
 
 using namespace std;
