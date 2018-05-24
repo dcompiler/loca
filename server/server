@@ -158,7 +158,7 @@ class CServer
                else
                  'text/plain'
              end
-
+      
       return unless File.file?(req)
       contents = File.open(req, 'r') { |file| file.read }
       headers = {
@@ -167,18 +167,20 @@ class CServer
       }
     end
     response = [200, headers, [contents]]
-
   end
 end
 class UpServer
   def call(env)
+
     request = Rack::Request.new(env)
     name = ''
     if (request.path == '/upload')
       name = request.params["upload"][:filename]
       puts name
       if (name =~ /.dat([.][a|i|d])?$/ or name =~ /.info$/ or name =~ /.fp$/) #check file type
-        res = File.open("#{HomeDir}/#{name}", "wb")
+        basename = "#{HomeDir}/#{name}"
+        FileUtils.cp(basename, "./data/")
+        res = File.open(basename, "wb")
         res.puts request.params["upload"][:tempfile].readlines
         res.close
       end
