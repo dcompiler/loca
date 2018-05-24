@@ -1,4 +1,5 @@
 # Support for adding external tools such as Pin
+require 'os'
 
 module LabExternal
   PinTools = "source/tools/"
@@ -33,7 +34,12 @@ module LabExternal
     end
     obj_dir = Dir.entries(".").find {|i| i.match /^obj/}
     raise "Object file directory not found" if obj_dir == nil
-    obj = File.join( tooldir, FootprintTool, obj_dir, "dual_fp_all.dylib" ) #.dylib for mac, .so for windows
+
+    if OS.mac
+      obj = File.join( tooldir, FootprintTool, obj_dir, "dual_fp_all.dylib" ) #.dylib for mac, .so for windows
+    else
+      obj = File.join( tooldir, FootprintTool, obj_dir, "dual_fp_all.so" )
+    end
     #obj = File.join( tooldir, FootprintTool, obj_dir, "linear_fp.dylib" )
     raise "Object file #{obj} not found" unless File.file?(obj)
     Labenv.env[:footprint_obj] = obj

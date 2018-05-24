@@ -14,3 +14,7 @@ The LLVM compiler installed on Mac machines is sufficient.
 3. Running Server
 
 The server currently must be run within the server folder. This is a temporary bug.
+
+4. Other requirements, new
+
+gem install os
