@@ -35,7 +35,7 @@ module LabExternal
     obj_dir = Dir.entries(".").find {|i| i.match /^obj/}
     raise "Object file directory not found" if obj_dir == nil
 
-    if OS.mac
+    if OS.mac?
       obj = File.join( tooldir, FootprintTool, obj_dir, "dual_fp_all.dylib" ) #.dylib for mac, .so for windows
     else
       obj = File.join( tooldir, FootprintTool, obj_dir, "dual_fp_all.so" )
