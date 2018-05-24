@@ -33,6 +33,7 @@ else
 end
 ### $currentDir = "./"
 puts "LocaServer: serving from #{HomeDir}"
+puts "LocaServerDir: Loca Server Directory #{LocaServerDir}"
 
 FileUtils.cp_r("#{LocaServerDir}/static/.", \
 								  "#{HomeDir}/.static/")
@@ -54,18 +55,21 @@ end
 class CServer
 
   def call(env)
+    #create data directory if it does not exist
+    FileUtils.mkdir_p("data")
+
     request = Rack::Request.new(env) # request ex. #<Rack::Request:0x101c62da0>
     req = request.path # req looks like /program.dat or foldername
     fullreq = File.join(HomeDir, req) # fullreq is path/req
     ext = File.extname(req)
-    currentDir = File.join("./", File.dirname(req)) #{}"./"
+    currentDir = File.join("#{LocaServerDir}/", File.dirname(req)) #{}"./"
 
     ## Create list of items in directory.
     if File.directory?(fullreq)
       if req == "/"
-        currentDir = "./"
+        currentDir = "#{LocaServerDir}/"
       else
-        currentDir = File.join("./", req)
+        currentDir = File.join("#{LocaServerDir}/", req)
       end
 
       files, dirs = Server.browse(currentDir)
@@ -88,13 +92,13 @@ class CServer
       ## Create HTML files to display dynamic picture.
       if ext =~ /[a|i|d|dat]$/
         ["fp", "lf", "mr", "rd"].each do |metric|
-          File.open("#{program}.#{metric}.html", "w") do |imageHTML|
+          File.open("#{LocaServerDir}/#{program}.#{metric}.html", "w") do |imageHTML|
             imageHTML.puts Server.imagePage(currentDir, "#{program}", "#{metric}", false)
           end
         end
       else
         ["fp", "lf"].each do |metric|
-          File.open("#{program}.#{metric}.html", "w") do |imageHTML|
+          File.open("#{LocaServerDir}/#{program}.#{metric}.html", "w") do |imageHTML|
             imageHTML.puts Server.imagePage(currentDir, "#{program}", "#{metric}", true)
           end
         end
@@ -103,7 +107,7 @@ class CServer
       ## Plot the graphs.
       # If .png file doesn't exist, make it.
       # .fp file may update, so re-plot anyway
-      if !File.file?(File.join(currentDir, "#{program}.fp.png")) or ext == ".fp"
+      if !File.file?(File.join("./data/", "#{program}.fp.png")) or ext == ".fp"
         if ext =~ /[a|i|d|dat]$/
           Plot.default(currentDir, program, ext)
         else
@@ -128,14 +132,14 @@ class CServer
             Plot_p.zoom(currentDir, program, ext, xmin, xmax, metric)
           end
 
-          plothtml = "#{program}.#{metric}.html"
+          plothtml = "#{LocaServerDir}/#{program}.#{metric}.html"
           contents = File.open(plothtml, 'r') { |f| f.read }
         elsif (request.params["whichForm"] == "typeForm")
           goToMetric = request.params["goToMetric"]
-          contents = File.open("#{program}.#{goToMetric}.html", 'r') { |f| f.read }
+          contents = File.open("#{LocaServerDir}/#{program}.#{goToMetric}.html", 'r') { |f| f.read }
         end
       else
-        contents = File.open("#{program}.fp.html", 'r') { |f| f.read }
+        contents = File.open("#{LocaServerDir}/#{program}.fp.html", 'r') { |f| f.read }
       end
 
       ## Create headers.
@@ -179,7 +183,7 @@ class UpServer
       puts name
       if (name =~ /.dat([.][a|i|d])?$/ or name =~ /.info$/ or name =~ /.fp$/) #check file type
         basename = "#{HomeDir}/#{name}"
-        FileUtils.cp(basename, "./data/")
+        FileUtils.cp(basename, "#{LocaServerDir}/data/")
         res = File.open(basename, "wb")
         res.puts request.params["upload"][:tempfile].readlines
         res.close

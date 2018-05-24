@@ -2,6 +2,7 @@ args <- commandArgs(TRUE)
 
 app <- args[1]
 ext <- args[2]
+write <- args[3]
 title <- sprintf("average footprint curves of %s", app)
 rawdata <- read.table(sprintf("%s%s", app,ext), skip=1)
 legend <- c("cache block size is 64 bytes", "cache block size is 4 bytes")
@@ -9,7 +10,7 @@ ltys <- c(1, 2)
 cols <- c("red", "blue")
 
 #draw footprint curve
-saveto <- sprintf("%s.fp.png", app)
+saveto <- sprintf("%s.fp.png", write)
 x <- rawdata[,2]
 y <- rawdata[,3]
 y2 <- rawdata[,6]
@@ -22,8 +23,8 @@ lines(x, y2, type="l",lty=2, col="blue")
 dev.off()
 
 #draw lifetime curve
-title <- sprintf("lifetime curves of %s", app)
-saveto <- sprintf("%s.lf.png", app)
+title <- sprintf("lifetime curves of %s", write)
+saveto <- sprintf("%s.lf.png", write)
 x <- rawdata[,3]
 y <- rawdata[,2]
 x2 <- rawdata[,6]
@@ -37,8 +38,8 @@ dev.off()
 
 
 #draw reuse signature
-title <- sprintf("reuse signature of %s", app)
-saveto <- sprintf("%s.rd.png", app)
+title <- sprintf("reuse signature of %s", write)
+saveto <- sprintf("%s.rd.png", write)
 x <- rawdata[,3]
 y <- rawdata[,4]
 x2 <- rawdata[,6]
@@ -53,8 +54,8 @@ dev.off()
 
 
 #draw miss ratio curve
-title <- sprintf("miss ratio curves of %s", app)
-saveto <- sprintf("%s.mr.png", app)
+title <- sprintf("miss ratio curves of %s", write)
+saveto <- sprintf("%s.mr.png", write)
 x <- rawdata[,3]
 y <- rawdata[,5]
 x2 <- rawdata[,6]

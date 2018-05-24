@@ -7,31 +7,36 @@ require 'fileutils' #instead of 'ftools'
 	#  i.e. directory/file is copied to directory/zoom.file).
 
 	def self.rplot (currentDir, program, ext, zoom)
+
 		if zoom == true
 			arg1 = File.join(currentDir, "zoom_#{program}")
 			arg2 = ext
-			`Rscript #{LocaServerDir}/draw_dual.r #{arg1} #{arg2}`
+			arg3 = File.join("./data/", "zoom_#{program}")
+			`Rscript #{LocaServerDir}/draw_dual.r #{arg1} #{arg2} #{arg3}`
 		else
 			arg1 = File.join(currentDir, program)
 			arg2 = ext
-			`Rscript #{LocaServerDir}/draw_dual.r #{arg1} #{arg2}`
+			arg3 = File.join("./data/", program)
+			`Rscript #{LocaServerDir}/draw_dual.r #{arg1} #{arg2} #{arg3}`
 		end
 	 end
 
 	def self.default (currentDir, program, ext)
 		rplot(currentDir, program, ext, false)
+		dataDir = "./data/"
 		["fp", "lf", "mr", "rd"].each do |metric|
-			FileUtils.cp(File.join( currentDir, \
+			FileUtils.cp(File.join( dataDir, \
 									 program + ".#{metric}.png"), \
-									 File.join( currentDir, \
+									 File.join( dataDir, \
 									 "zoom_" + program + ".#{metric}.png"))
 		end
 	end	
 
 	def self.zoom (currentDir, program, ext, xmin, xmax, metric)
+		dataDir = "./data/"
 		columnNum = (metric == "fp")? 1 : 2
-		File.open(File.join( currentDir, "zoom_#{program}#{ext}"), "w") do |writefile|
-			File.open(File.join( currentDir, "#{program}#{ext}"), "r") do |f|
+		File.open(File.join( dataDir, "zoom_#{program}#{ext}"), "w") do |writefile|
+			File.open(File.join( dataDir, "#{program}#{ext}"), "r") do |f|
 				writefile.puts f.gets #print 1st line.
 				if (metric == "fp")
 					while line = f.gets # Print rest of lines where column 1 is in range
