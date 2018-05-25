@@ -1,4 +1,5 @@
 # Support for adding external tools such as Pin
+
 require 'os'
 
 module LabExternal

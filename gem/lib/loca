@@ -33,7 +33,7 @@ def cmd_help
 #  puts "pmr\tget miss ratio of a pfp"
   puts "upload\tupload current data to server"
   puts "  -r [server address]\tupload to remote servers"
-  puts "clean\t[todo]clean current data dir"
+  puts "clean\tclean current data dir"
   puts "help"
 end
 
@@ -172,7 +172,7 @@ begin
 
     elsif cmd == "upload"
       data_dir = Labenv.paths[Labenv::DataDir]
-      url = (args[0] != '-r')?'http://localhost:3000/upload':'http://loca.highpower.me:3000/upload'
+      url = (args[0] != '-r')? 'http://localhost:3000/upload' : 'http://loca.highpower.me:3000/upload'
       Dir.foreach(data_dir) { |file|
         isDir = File.directory?(file)
         next if File.directory?(file)
@@ -190,7 +190,13 @@ begin
       }
     elsif cmd == "clean"
       #todo
-      puts "[todo] comming soon, please manually empty the data dir"
+      data_dir = Labenv.paths[Labenv::DataDir]
+      print "Cleaning -- If asked to remove type 'y' and hit 'enter/return' for each file.\n"
+      print "Removing From: #{data_dir}\n\n"
+      system("rm #{data_dir}/*.i")
+      system("rm #{data_dir}/*.d")
+      system("rm #{data_dir}/*.info")
+      print "\nCleaned #{data_dir}.\n"
     else
       puts "#{cmd} not a valid command (see '#{$0.split('/')[-1]} help')"
     end
